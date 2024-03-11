@@ -1,0 +1,144 @@
+---
+title: "Untitled"
+author: "Manaswini"
+date: "2024-03-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+```{r}
+
+Universal_Bank <- read.csv("C:/Users/Winnie/Downloads/UniversalBank.csv")
+
+```
+
+
+
+```{r}
+
+library(caret)
+library(ISLR)
+library(e1071)
+library(dplyr)
+library(class)
+library(reshape2)
+library(ggplot2)
+library(gmodels)
+library(lattice)
+
+```
+
+
+
+```{r}
+
+summary(Universal_Bank)
+
+
+```
+
+
+```{r}
+
+Universal_Bank$Personal.Loan <- as.factor(Universal_Bank$Personal.Loan)
+Universal_Bank$Online <- as.factor(Universal_Bank$Online)
+Universal_Bank$CreditCard <- as.factor(Universal_Bank$CreditCard)
+df= Universal_Bank
+
+```
+
+
+```{r}
+
+set.seed(123)
+Train_Index1 <- createDataPartition(df$Personal.Loan, p = 0.6, list = FALSE)
+Train1.df = df[Train_Index1,]
+validation.df = df[-Train_Index1,]
+
+```
+
+
+
+```{r}
+
+pitable <- xtabs(~ CreditCard + Online + Personal.Loan , data = Train1.df)
+ftable(pitable)
+
+
+```
+
+
+```{r}
+
+T2Probability = 59/(59+479)
+T2Probability
+
+```
+
+
+```{r}
+table(Personal.Loan = Train1.df$Personal.Loan, Online = Train1.df$Online)
+
+table(Personal.Loan = Train1.df$Personal.Loan, CreditCard = Train1.df$CreditCard)
+table(Personal.Loan = Train1.df$Personal.Loan)
+
+```
+
+
+```{r}
+#i. P(CC = 1 | Loan = 1) (the proportion of credit card holders among the loan 
+#acceptors) 
+T4Probability1 <- 93/(93+195)
+T4Probability1
+
+#ii. P(Online = 1 | Loan = 1)  
+T4Probability2 <- 179/(179+109)
+T4Probability2
+
+#iii. P(Loan = 1) (the proportion of loan acceptors)  
+T4Probability3 <- 288/(288+2712)
+T4Probability3
+#iv. P(CC = 1 | Loan = 0)  
+T4Probability4 <- 788/(788+1924)
+T4Probability4
+
+#v. P(Online = 1 | Loan = 0) 
+T4Probability5 <- 1631/(1631+1081)
+T4Probability5
+
+#vi. P(Loan = 0) 
+T4Probability6 <- 2712/(2712+288)
+T4Probability6
+
+```
+
+
+```{r}
+T5Probability <- (T4Probability1*T4Probability2*T4Probability3)/
+  ((T4Probability1*T4Probability2*T4Probability3) +(T4Probability4*T4Probability5*T4Probability6))
+
+T5Probability
+```
+
+QUESTION-F
+
+As of Task 2, the value we obtained was 0.1096654, and the value we obtained from Task 5 is 0.1087106. 
+Unlike the exact technique, the naive Bayes method does not need to categorize independent variables 
+before forecasting, as the exact method does. 
+As we used the exact data from the pivot table, we 
+can verify that the result obtained from Task 2 is more precise.
+
+
+
+```{r}
+NB.Model <- naiveBayes(Personal.Loan~ Online + CreditCard, data = Train1.df)
+To_Predict1=data.frame(Online=1, CreditCard= 1)
+predict(NB.Model, To_Predict1,type = 'raw')
+```
+
